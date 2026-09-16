@@ -30,6 +30,7 @@ import { FocusRuler } from './components/FocusRuler';
 import { RewardToast } from './components/RewardToast';
 import { StepByStepGuide } from './components/StepByStepGuide';
 import { ConstellationSky } from './components/ConstellationSky';
+import { MenchGame } from './components/MenchGame';
 import { sounds } from './lib/sound';
 import {
   RotateCcw,
@@ -42,9 +43,10 @@ import {
   Zap,
   HelpCircle,
   Volume2,
+  Dice5,
 } from 'lucide-react';
 
-type TabType = 'missions' | 'trends' | 'sky' | 'chairs' | 'league' | 'chat' | 'adhd' | 'android';
+type TabType = 'missions' | 'trends' | 'sky' | 'chairs' | 'league' | 'chat' | 'adhd' | 'android' | 'mench';
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>(() => loadAppState());
@@ -668,95 +670,117 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* Navigation Tabs */}
-            <nav className="flex gap-1 mb-5 bg-[#020409] p-1.5 rounded-2xl border border-[#1e293b] overflow-x-auto scrollbar-none">
-              <button
-                onClick={() => setActiveTab('missions')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'missions'
-                    ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.tabMissions}
-              </button>
-              <button
-                onClick={() => setActiveTab('trends')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'trends'
-                    ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.tabTrends}
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('sky');
-                  sounds.playHeart();
-                }}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'sky'
-                    ? 'bg-gradient-to-r from-[#c084fc] to-[#38bdf8] text-slate-950 shadow-[0_0_15px_rgba(192,132,252,0.45)]'
-                    : 'text-purple-400/90 hover:text-purple-300'
-                }`}
-              >
-                {t.tabSky}
-              </button>
-              <button
-                onClick={() => setActiveTab('chairs')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'chairs'
-                    ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.tabChairs}
-              </button>
-              <button
-                onClick={() => setActiveTab('league')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'league'
-                    ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.tabLeague}
-              </button>
-              <button
-                onClick={() => setActiveTab('chat')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'chat'
-                    ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.tabChat}
-              </button>
-              <button
-                onClick={() => setActiveTab('adhd')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'adhd'
-                    ? 'bg-gradient-to-r from-[#f59e0b] to-[#c084fc] text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
-                    : 'text-amber-400/80 hover:text-amber-300'
-                }`}
-              >
-                {t.tabAdhd}
-              </button>
-              <button
-                onClick={() => setActiveTab('android')}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
-                  activeTab === 'android'
-                    ? 'bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-                    : 'text-emerald-400/80 hover:text-emerald-300'
-                }`}
-              >
-                {t.tabAndroid}
-              </button>
-            </nav>
+            {/* Navigation Tabs (Mobile-friendly horizontal swipe with 42px touch targets) */}
+            <div className="relative mb-5">
+              <nav className="flex gap-1.5 bg-[#020409] p-1.5 rounded-2xl border border-[#1e293b] overflow-x-auto scrollbar-none touch-pan-x scroll-smooth">
+                <button
+                  onClick={() => setActiveTab('missions')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'missions'
+                      ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {t.tabMissions}
+                </button>
+                <button
+                  onClick={() => setActiveTab('trends')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'trends'
+                      ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {t.tabTrends}
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('sky');
+                    sounds.playHeart();
+                  }}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'sky'
+                      ? 'bg-gradient-to-r from-[#c084fc] to-[#38bdf8] text-slate-950 shadow-[0_0_15px_rgba(192,132,252,0.45)]'
+                      : 'text-purple-400/90 hover:text-purple-300'
+                  }`}
+                >
+                  {t.tabSky}
+                </button>
+                <button
+                  onClick={() => setActiveTab('chairs')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'chairs'
+                      ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {t.tabChairs}
+                </button>
+                <button
+                  onClick={() => setActiveTab('league')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'league'
+                      ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {t.tabLeague}
+                </button>
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'chat'
+                      ? 'bg-[#38bdf8] text-[#05070f] shadow-[0_0_15px_rgba(56,189,248,0.4)]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {t.tabChat}
+                </button>
+                <button
+                  onClick={() => setActiveTab('adhd')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'adhd'
+                      ? 'bg-gradient-to-r from-[#f59e0b] to-[#c084fc] text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+                      : 'text-amber-400/80 hover:text-amber-300'
+                  }`}
+                >
+                  {t.tabAdhd}
+                </button>
+                <button
+                  onClick={() => setActiveTab('android')}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'android'
+                      ? 'bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                      : 'text-emerald-400/80 hover:text-emerald-300'
+                  }`}
+                >
+                  {t.tabAndroid}
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('mench');
+                    sounds.playDiceRoll();
+                  }}
+                  className={`flex-1 min-w-[76px] min-h-[42px] py-2 px-2 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                    activeTab === 'mench'
+                      ? 'bg-gradient-to-r from-red-500 via-amber-400 to-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.5)] font-black'
+                      : 'text-amber-400 hover:text-amber-200'
+                  }`}
+                >
+                  {t.tabMench}
+                </button>
+              </nav>
+            </div>
 
             {/* Tab Content Panes */}
             <section>
+              {activeTab === 'mench' && (
+                <MenchGame
+                  userName={appState.user.name}
+                  onAddXp={(amount, rep) => addXpAndRep(amount, rep ?? 10)}
+                  onShowToast={showToast}
+                />
+              )}
               {activeTab === 'missions' && (
                 <MissionsTab
                   missions={appState.missions}

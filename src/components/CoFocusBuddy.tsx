@@ -18,15 +18,17 @@ interface Buddy {
   status: 'focusing' | 'completed';
 }
 
+const STORAGE_KEY = 'able_cofocus_session_v1';
+
 export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
   userName,
   onSessionComplete,
   onShowToast,
 }) => {
-  const [sessionMinutes, setSessionMinutes] = useState(25);
-  const [secondsRemaining, setSecondsRemaining] = useState(25 * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [myTask, setMyTask] = useState('');
+  const sessionMinutes = 25;
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(sessionMinutes * 60);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [myTask, setMyTask] = useState<string>('');
   const [activeBuddy, setActiveBuddy] = useState<Buddy>({
     id: 'b1',
     name: 'آرشام',
@@ -63,18 +65,61 @@ export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
     },
   ];
 
+  // Restore saved session on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.myTask) setMyTask(parsed.myTask);
+        if (parsed.buddyId) {
+          const found = availableBuddies.find((b) => b.id === parsed.buddyId);
+          if (found) setActiveBuddy(found);
+        }
+
+        if (parsed.isRunning && parsed.targetEndTime) {
+          const now = Date.now();
+          const diffSec = Math.floor((parsed.targetEndTime - now) / 1000);
+          if (diffSec > 0) {
+            setSecondsRemaining(diffSec);
+            setIsRunning(true);
+            ambientSound.start();
+          } else {
+            // Already completed in background
+            setSecondsRemaining(0);
+            setIsRunning(false);
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        } else if (parsed.secondsRemaining) {
+          setSecondsRemaining(parsed.secondsRemaining);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore CoFocus session:', e);
+    }
+  }, []);
+
+  // Sync timer tick with wall-clock time
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
+
     if (isRunning && secondsRemaining > 0) {
       interval = setInterval(() => {
-        setSecondsRemaining((prev) => prev - 1);
+        setSecondsRemaining((prev) => {
+          if (prev <= 1) {
+            setIsRunning(false);
+            ambientSound.stop();
+            sounds.playLevelUp();
+            onSessionComplete();
+            onShowToast('🎉 عهد تمرکز مشترک به پایان رسید! خسته نباشی رفیق (+۵۰ XP)');
+            localStorage.removeItem(STORAGE_KEY);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    } else if (secondsRemaining === 0 && isRunning) {
-      setIsRunning(false);
-      sounds.playLevelUp();
-      onSessionComplete();
-      onShowToast('🎉 عهد تمرکز مشترک به پایان رسید! خسته نباشی رفیق (+۵۰ XP)');
     }
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -85,21 +130,56 @@ export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
       onShowToast('لطفاً هدف کوتاه تمرکز خود را بنویسید');
       return;
     }
+    const targetEndTime = Date.now() + secondsRemaining * 1000;
     setIsRunning(true);
     sounds.playHeart();
     ambientSound.start();
+
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          isRunning: true,
+          targetEndTime,
+          secondsRemaining,
+          myTask,
+          buddyId: activeBuddy.id,
+        })
+      );
+    } catch {
+      // ignore
+    }
+
     onShowToast(`🔥 سنگر تمرکز دونفره با ${activeBuddy.name} آغاز شد`);
   };
 
   const handlePause = () => {
     setIsRunning(false);
     ambientSound.stop();
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          isRunning: false,
+          secondsRemaining,
+          myTask,
+          buddyId: activeBuddy.id,
+        })
+      );
+    } catch {
+      // ignore
+    }
   };
 
   const handleReset = () => {
     setIsRunning(false);
     setSecondsRemaining(sessionMinutes * 60);
     ambientSound.stop();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
   };
 
   const minutes = Math.floor(secondsRemaining / 60);
@@ -212,7 +292,7 @@ export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
           {!isRunning ? (
             <button
               onClick={handleStart}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 text-xs font-black hover:opacity-90 flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              className="px-4 py-2 min-h-[44px] rounded-xl bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 text-xs font-black hover:opacity-90 flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-slate-950" />
               <span>شروع عهد مشترک</span>
@@ -220,7 +300,7 @@ export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
           ) : (
             <button
               onClick={handlePause}
-              className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold hover:bg-amber-500/30 flex items-center gap-1.5 transition-all"
+              className="px-3 py-2 min-h-[44px] rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold hover:bg-amber-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <Pause className="w-3.5 h-3.5" />
               <span>توقف موقت</span>
@@ -229,7 +309,7 @@ export const CoFocusBuddy: React.FC<CoFocusBuddyProps> = ({
 
           <button
             onClick={handleReset}
-            className="p-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
             title="شروع مجدد تایمر"
           >
             <RotateCcw className="w-3.5 h-3.5" />

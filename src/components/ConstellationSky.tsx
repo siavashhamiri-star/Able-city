@@ -266,7 +266,7 @@ export const ConstellationSky: React.FC<ConstellationSkyProps> = ({
           )}
         </svg>
 
-        {/* Interactive Star Nodes */}
+        {/* Interactive Star Nodes with 40px touch targets */}
         {filteredStars.map((star) => {
           const isSelected = selectedStar?.id === star.id;
 
@@ -274,32 +274,31 @@ export const ConstellationSky: React.FC<ConstellationSkyProps> = ({
             <button
               key={star.id}
               onClick={() => handleSelectStar(star)}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 focus:outline-none group transition-transform duration-200 hover:scale-130 active:scale-95"
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 focus:outline-none group transition-transform duration-200 active:scale-95 w-10 h-10 flex items-center justify-center cursor-pointer"
               style={{
                 left: `${star.x}%`,
                 top: `${star.y}%`,
-                zIndex: isSelected ? 30 : 10,
+                zIndex: isSelected ? 35 : 15,
               }}
               title={`${star.title} (${star.author})`}
+              aria-label={`${star.title} by ${star.author}`}
             >
               {/* Outer pulsing ring for selected or high-score stars */}
               {isSelected && (
                 <div
-                  className="absolute inset-0 rounded-full animate-ping opacity-75 pointer-events-none"
+                  className="absolute inset-0 m-auto rounded-full animate-ping opacity-75 pointer-events-none"
                   style={{
                     backgroundColor: star.color,
                     width: `${star.size + 14}px`,
                     height: `${star.size + 14}px`,
-                    marginLeft: '-7px',
-                    marginTop: '-7px',
                   }}
                 />
               )}
 
               {/* Star Core Dot */}
               <div
-                className={`rounded-full transition-all duration-300 ${
-                  isSelected ? 'ring-2 ring-white scale-125' : ''
+                className={`rounded-full transition-all duration-300 pointer-events-none ${
+                  isSelected ? 'ring-2 ring-white scale-125' : 'group-hover:scale-130'
                 }`}
                 style={{
                   width: `${star.size}px`,
@@ -309,8 +308,8 @@ export const ConstellationSky: React.FC<ConstellationSkyProps> = ({
                 }}
               />
 
-              {/* Micro author/title label on hover */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 whitespace-nowrap bg-slate-950/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-700 pointer-events-none">
+              {/* Micro author/title label on hover (desktop only) */}
+              <div className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 whitespace-nowrap bg-slate-950/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-700 pointer-events-none">
                 {star.author}: {star.title.slice(0, 16)}
               </div>
             </button>
@@ -319,15 +318,15 @@ export const ConstellationSky: React.FC<ConstellationSkyProps> = ({
 
         {/* Center Cosmos Core Hint if nothing selected */}
         {!selectedStar && (
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 text-center text-[10px] text-slate-400 bg-slate-950/80 px-3 py-1 rounded-full border border-slate-800 backdrop-blur-xs flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-[#38bdf8] animate-spin" />
-            <span>روی هر ستاره کلیک کنید تا نور سازندگی و مشخصات رفیق سازنده آشکار شود</span>
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 text-center text-[10px] text-slate-400 bg-slate-950/80 px-3 py-1 rounded-full border border-slate-800 backdrop-blur-xs flex items-center gap-1.5 whitespace-nowrap max-w-[90%] overflow-hidden text-ellipsis pointer-events-none">
+            <Sparkles className="w-3 h-3 text-[#38bdf8] shrink-0 animate-spin" />
+            <span>روی هر ستاره ضربه بزنید تا نور و مشخصات سازنده آشکار شود</span>
           </div>
         )}
 
-        {/* Selected Star Interactive Glass Card (Float Inspector) */}
+        {/* Selected Star Interactive Glass Card (Bottom sheet on mobile, top-left on desktop) */}
         {selectedStar && (
-          <div className="absolute top-3 left-3 right-3 sm:right-auto sm:w-80 rounded-xl bg-slate-950/95 border border-[#38bdf8]/40 p-3 text-xs shadow-2xl backdrop-blur-md animate-fade-in z-40 space-y-2">
+          <div className="absolute bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:right-auto sm:w-80 rounded-xl bg-slate-950/95 border border-[#38bdf8]/50 p-3 text-xs shadow-2xl backdrop-blur-md animate-fade-in z-40 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <span

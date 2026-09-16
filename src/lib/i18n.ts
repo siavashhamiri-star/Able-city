@@ -31,6 +31,7 @@ export interface TranslationDictionary {
   tabAdhd: string;
   tabAndroid: string;
   tabA11y: string;
+  tabMench: string;
 
   // Soul HUD
   roleLabel: string;
@@ -142,6 +143,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 تمرکز ADHD',
     tabAndroid: '📱 ساخت APK/AAB',
     tabA11y: '♿ دسترس‌پذیری',
+    tabMench: '🎲 بازی منچ',
 
     roleLabel: 'مقام:',
     levelLabel: 'سطح',
@@ -243,6 +245,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 ADHD Focus',
     tabAndroid: '📱 APK / AAB Hub',
     tabA11y: '♿ Accessibility',
+    tabMench: '🎲 Mench Game',
 
     roleLabel: 'Role:',
     levelLabel: 'Level',
@@ -344,6 +347,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 تركيز ADHD',
     tabAndroid: '📱 حزمة APK/AAB',
     tabA11y: '♿ إمكانية الوصول',
+    tabMench: '🎲 لعبة لودو (منش)',
 
     roleLabel: 'الرتبة:',
     levelLabel: 'المستوى',
@@ -445,6 +449,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 Enfoque TDAH',
     tabAndroid: '📱 APK / AAB Hub',
     tabA11y: '♿ Accesibilidad',
+    tabMench: '🎲 Juego Parchís',
 
     roleLabel: 'Rol:',
     levelLabel: 'Nivel',
@@ -546,6 +551,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 ADHD फोकस',
     tabAndroid: '📱 APK / AAB हब',
     tabA11y: '♿ सुगमता (A11y)',
+    tabMench: '🎲 लूडो खेल (Mench)',
 
     roleLabel: 'पद:',
     levelLabel: 'स्तर',
@@ -647,6 +653,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 ADHD专注',
     tabAndroid: '📱 APK/AAB打包',
     tabA11y: '♿ 无障碍辅助',
+    tabMench: '🎲 飞行棋 (Mench)',
 
     roleLabel: '头衔：',
     levelLabel: '等级',
@@ -748,6 +755,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabAdhd: '🧠 СДВГ Фокус',
     tabAndroid: '📱 Сборка APK / AAB',
     tabA11y: '♿ Доступность',
+    tabMench: '🎲 Игра Менч (Лудо)',
 
     roleLabel: 'Звание:',
     levelLabel: 'Уровень',

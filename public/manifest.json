@@ -1,0 +1,19 @@
+{
+  "name": "ABLE City - شهر توانا",
+  "short_name": "ABLE City",
+  "description": "پلتفرم ارزش‌آفرینان، پناهگاه روحی و گیمیفیکیشن توسعه و خلاقیت",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070f",
+  "theme_color": "#38bdf8",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "fa",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ABLE City",
+  "description": "شهر توانا؛ مأوای ارزش‌آفرینان و احیای روح آدم‌ها - پلتفرم گیمیفیکیشن، مأموریت‌ها، چرخه آثار و اتاق همدلی",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

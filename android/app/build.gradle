@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.ablecity.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.ablecity.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+            hostName: "able-city.app",
+            defaultUrl: "https://able-city.app"
+        ]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.browser:customtabs:1.8.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}

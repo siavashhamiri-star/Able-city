@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ablecity.app",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:7F:0E:52:D7:11:86:EC:D6:B3:72:EB:EF:3A:70:03:8D:40:AE:0F:6E:70:AE:66:18:11:43:A8:0F:45"
+      ]
+    }
+  }
+]

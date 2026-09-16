@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Gradle start up script for POSIX systems
+# Compatible with standard Gradle Wrapper
+
+set -e
+
+DIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+APP_BASE_NAME=`basename "$0"`
+APP_HOME="$DIR"
+
+# Warn if JAVA_HOME is not set
+if [ -z "$JAVA_HOME" ] ; then
+    JAVACMD="java"
+else
+    JAVACMD="$JAVA_HOME/bin/java"
+fi
+
+WRAPPER_JAR="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+
+# If wrapper jar is not present, download it or invoke gradle
+if [ ! -f "$WRAPPER_JAR" ]; then
+    echo "Downloading Gradle Wrapper Jar..."
+    mkdir -p "$APP_HOME/gradle/wrapper"
+    curl -sLo "$WRAPPER_JAR" "https://raw.githubusercontent.com/gradle/gradle/v8.6.0/gradle/wrapper/gradle-wrapper.jar" || \
+    wget -qO "$WRAPPER_JAR" "https://raw.githubusercontent.com/gradle/gradle/v8.6.0/gradle/wrapper/gradle-wrapper.jar" || true
+fi
+
+if [ -f "$WRAPPER_JAR" ]; then
+    exec "$JAVACMD" -jar "$WRAPPER_JAR" "$@"
+else
+    echo "Using system gradle command..."
+    exec gradle "$@"
+fi

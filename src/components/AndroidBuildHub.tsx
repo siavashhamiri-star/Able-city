@@ -39,6 +39,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -46,55 +49,49 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Production Web App
-        run: npm run build
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Setup Android SDK & Tools
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Ensure Gradle Wrapper Exists
-        run: |
-          cd android
-          if [ ! -f "gradlew" ]; then
-            echo "Gradle wrapper missing, generating with gradle..."
-            gradle wrapper --gradle-version 8.6 || true
-          fi
-          chmod +x gradlew || true
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.6
 
-      - name: Build Release APK
-        run: |
-          cd android
-          if [ -f "gradlew" ]; then
-            ./gradlew assembleRelease --no-daemon --stacktrace
-          else
-            gradle assembleRelease --no-daemon --stacktrace
-          fi
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - name: Build Release AAB (Android App Bundle for Play Store)
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Prepare Android Assets
         run: |
-          cd android
-          if [ -f "gradlew" ]; then
-            ./gradlew bundleRelease --no-daemon --stacktrace
-          else
-            gradle bundleRelease --no-daemon --stacktrace
-          fi
+          mkdir -p android/app/src/main/assets
+          cp -r dist/* android/app/src/main/assets/ || true
+
+      - name: Make Gradle Wrapper Executable
+        run: |
+          chmod +x ./android/gradlew || true
+
+      - name: Build Android Release APK
+        working-directory: ./android
+        run: |
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Build Android Release AAB
+        working-directory: ./android
+        run: |
+          ./gradlew bundleRelease --no-daemon --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

@@ -1,4 +1,4 @@
-name: Build Android APK & AAB (ABLE City)
+name: Build Android APK & AAB
 
 on:
   push:
@@ -11,64 +11,62 @@ env:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
+      # ۱. تنظیم جاوا ۱۷
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # ۲. لایسنس‌ها و ابزارهای اندروید
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.6
-
+      # ۳. بیلد وب‌اپ و فایل‌های فرانت‌اند
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Node Dependencies
-        run: npm install
-
-      - name: Build Web App
-        run: npm run build
-
-      - name: Prepare Android Assets
+      - name: Build Web Application
         run: |
+          npm install
+          npm run build
           mkdir -p android/app/src/main/assets
           cp -r dist/* android/app/src/main/assets/ || true
 
-      - name: Make Gradle Wrapper Executable
-        run: |
-          chmod +x ./android/gradlew || true
+      # ۴. تنظیم رسمی گریدل
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.6
 
-      - name: Build Android Release APK
+      # ۵. ساخت مستقیم APK و AAB بدون گیر کردن
+      - name: Build Android Release APK & AAB
         working-directory: ./android
         run: |
-          ./gradlew assembleRelease --no-daemon --stacktrace
+          gradle assembleRelease bundleRelease --no-daemon --stacktrace
 
-      - name: Build Android Release AAB
-        working-directory: ./android
-        run: |
-          ./gradlew bundleRelease --no-daemon --stacktrace
-
+      # ۶. دانلود خروجی‌ها
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-APK
           path: android/app/build/outputs/apk/release/*.apk
-          if-no-files-found: warn
+          if-no-files-found: error
 
-      - name: Upload AAB Artifact
+      - name: Upload AAB Artifact (Play Store)
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-AAB
           path: android/app/build/outputs/bundle/release/*.aab
-          if-no-files-found: warn
+          if-no-files-found: error

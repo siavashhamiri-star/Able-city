@@ -29,6 +29,7 @@ import { AuthModal } from './components/AuthModal';
 import { FocusRuler } from './components/FocusRuler';
 import { RewardToast } from './components/RewardToast';
 import { StepByStepGuide } from './components/StepByStepGuide';
+import { ConstellationSky } from './components/ConstellationSky';
 import { sounds } from './lib/sound';
 import {
   RotateCcw,
@@ -43,7 +44,7 @@ import {
   Volume2,
 } from 'lucide-react';
 
-type TabType = 'missions' | 'trends' | 'chairs' | 'league' | 'chat' | 'adhd' | 'android';
+type TabType = 'missions' | 'trends' | 'sky' | 'chairs' | 'league' | 'chat' | 'adhd' | 'android';
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>(() => loadAppState());
@@ -690,6 +691,19 @@ export default function App() {
                 {t.tabTrends}
               </button>
               <button
+                onClick={() => {
+                  setActiveTab('sky');
+                  sounds.playHeart();
+                }}
+                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+                  activeTab === 'sky'
+                    ? 'bg-gradient-to-r from-[#c084fc] to-[#38bdf8] text-slate-950 shadow-[0_0_15px_rgba(192,132,252,0.45)]'
+                    : 'text-purple-400/90 hover:text-purple-300'
+                }`}
+              >
+                {t.tabSky}
+              </button>
+              <button
                 onClick={() => setActiveTab('chairs')}
                 className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] md:text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
                   activeTab === 'chairs'
@@ -763,6 +777,16 @@ export default function App() {
                 />
               )}
 
+              {activeTab === 'sky' && (
+                <ConstellationSky
+                  works={appState.works}
+                  missions={appState.missions}
+                  chatMessages={appState.chatMessages}
+                  currentUser={appState.user}
+                  onShowToast={showToast}
+                />
+              )}
+
               {activeTab === 'chairs' && (
                 <GrandChairsTab
                   chairs={appState.grandChairs}
@@ -794,11 +818,13 @@ export default function App() {
                   t={t}
                   language={currentLang}
                   userRole={appState.user.role}
+                  userName={appState.user.name}
                   a11y={a11y}
                   onUpdateA11y={(patch) => setA11y((prev) => ({ ...prev, ...patch }))}
                   onToggleFocusMode={() => setIsFocusModeActive(!isFocusModeActive)}
                   isFocusModeActive={isFocusModeActive}
                   onShowToast={showToast}
+                  onAddXp={(amount) => addXpAndRep(amount, 5)}
                 />
               )}
 

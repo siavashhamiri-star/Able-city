@@ -24,6 +24,7 @@ export interface TranslationDictionary {
   appSubtitle: string;
   tabMissions: string;
   tabTrends: string;
+  tabSky: string;
   tabChairs: string;
   tabLeague: string;
   tabChat: string;
@@ -134,6 +135,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'مأوای ارزش‌آفرینان، پناهگاه روحی و گیمیفیکیشن توسعه و خلاقیت',
     tabMissions: '🛠️ مأموریت‌ها',
     tabTrends: '🔥 آثار و ترند',
+    tabSky: '✨ کهکشان ارزش',
     tabChairs: '🏛️ صندلی بزرگان',
     tabLeague: '🏆 لیگ ارزش',
     tabChat: '💬 اتاق همدلی',
@@ -234,6 +236,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'Sanctuary for creators, mental revival, and gamified development',
     tabMissions: '🛠️ Missions',
     tabTrends: '🔥 Works & Trends',
+    tabSky: '✨ Living Cosmos',
     tabChairs: '🏛️ Grand Chairs',
     tabLeague: '🏆 Value League',
     tabChat: '💬 Empathy Room',
@@ -334,6 +337,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'ملاذ صناع القيمة، إحياء الأرواح والتحفيز البرمجي',
     tabMissions: '🛠️ المهمات',
     tabTrends: '🔥 الأعمال والترند',
+    tabSky: '✨ سماء القيمة',
     tabChairs: '🏛️ مقاعد الكبار',
     tabLeague: '🏆 دوري القيمة',
     tabChat: '💬 غرفة التعاطف',
@@ -434,6 +438,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'Refugio para creadores, recuperación anímica y gamificación del desarrollo',
     tabMissions: '🛠️ Misiones',
     tabTrends: '🔥 Obras y Tendencias',
+    tabSky: '✨ Cosmos de Valor',
     tabChairs: '🏛️ Grandes Asientos',
     tabLeague: '🏆 Liga de Valor',
     tabChat: '💬 Sala de Empatía',
@@ -534,6 +539,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'मूल्य रचनाकारों का आश्रय, आत्मिक नवीनीकरण और गेमीफाइड विकास',
     tabMissions: '🛠️ मिशन',
     tabTrends: '🔥 कृतियाँ व ट्रेंड',
+    tabSky: '✨ मूल्य ब्रह्मांड',
     tabChairs: '🏛️ प्रमुख आसन',
     tabLeague: '🏆 मूल्य लीग',
     tabChat: '💬 सहानुभूति कक्ष',
@@ -634,6 +640,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: '价值创造者庇护所、心灵复苏与研发游戏化平台',
     tabMissions: '🛠️ 使命任务',
     tabTrends: '🔥 作品与趋势',
+    tabSky: '✨ 价值星穹',
     tabChairs: '🏛️ 贤达席位',
     tabLeague: '🏆 价值联赛',
     tabChat: '💬 共情空间',
@@ -734,6 +741,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     appSubtitle: 'Обитель творцов, душевное возрождение и геймификация разработки',
     tabMissions: '🛠️ Миссии',
     tabTrends: '🔥 Работы и Тренды',
+    tabSky: '✨ Космос Ценностей',
     tabChairs: '🏛️ Совет Старейшин',
     tabLeague: '🏆 Лига Ценности',
     tabChat: '💬 Зал Эмпатии',

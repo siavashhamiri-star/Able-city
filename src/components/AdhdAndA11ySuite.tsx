@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TranslationDictionary } from '../lib/i18n';
 import { ambientSound } from '../lib/ambientSound';
 import { sounds } from '../lib/sound';
+import { CoFocusBuddy } from './CoFocusBuddy';
 import {
   Eye,
   Sliders,
@@ -33,22 +34,26 @@ interface AdhdAndA11ySuiteProps {
   t: TranslationDictionary;
   language: string;
   userRole: string;
+  userName?: string;
   a11y: AccessibilitySettings;
   onUpdateA11y: (settings: Partial<AccessibilitySettings>) => void;
   onToggleFocusMode: () => void;
   isFocusModeActive: boolean;
   onShowToast: (msg: string) => void;
+  onAddXp?: (amount: number) => void;
 }
 
 export const AdhdAndA11ySuite: React.FC<AdhdAndA11ySuiteProps> = ({
   t,
   language,
   userRole,
+  userName = 'همسنگر توانا',
   a11y,
   onUpdateA11y,
   onToggleFocusMode,
   isFocusModeActive,
   onShowToast,
+  onAddXp,
 }) => {
   // Ambient sound state
   const [isAmbientPlaying, setIsAmbientPlaying] = useState(false);
@@ -267,6 +272,15 @@ export const AdhdAndA11ySuite: React.FC<AdhdAndA11ySuiteProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Co-Focus Body Doubling Companion (سنگر تمرکز دونفره) */}
+      <CoFocusBuddy
+        userName={userName}
+        onSessionComplete={() => {
+          if (onAddXp) onAddXp(50);
+        }}
+        onShowToast={onShowToast}
+      />
 
       {/* AI Task Decomposer (ADHD Overwhelm Antidote) */}
       <div className="rounded-xl border border-slate-800 bg-[#0b101d] p-4 space-y-3">

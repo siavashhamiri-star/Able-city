@@ -25,13 +25,14 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # ۲. لایسنس‌ها و ابزارهای اندروید
-      - name: Accept Android SDK Licenses
+      # ۲. ست کردن مسیر استاندارد اندروید SDK
+      - name: Configure Android SDK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
-      # ۳. بیلد وب‌اپ و فایل‌های فرانت‌اند
+      # ۳. بیلد وب‌اپلیکیشن
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -44,19 +45,19 @@ jobs:
           mkdir -p android/app/src/main/assets
           cp -r dist/* android/app/src/main/assets/ || true
 
-      # ۴. تنظیم رسمی گریدل
+      # ۴. راه‌اندازی Gradle 8.6
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.6
 
-      # ۵. ساخت مستقیم APK و AAB بدون گیر کردن
+      # ۵. ساخت نهایی فایل‌های APK و AAB
       - name: Build Android Release APK & AAB
         working-directory: ./android
         run: |
           gradle assembleRelease bundleRelease --no-daemon --stacktrace
 
-      # ۶. دانلود خروجی‌ها
+      # ۶. ذخیره فایل خروجی APK برای گوشی
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -64,7 +65,8 @@ jobs:
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
-      - name: Upload AAB Artifact (Play Store)
+      # ۷. ذخیره فایل خروجی AAB برای پلی‌استور
+      - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-AAB

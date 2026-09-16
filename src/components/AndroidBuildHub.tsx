@@ -50,10 +50,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Production Web App
         run: npm run build
@@ -64,33 +63,52 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Setup Android SDK & Tools
         uses: android-actions/setup-android@v3
 
-      - name: Make Gradle executable
-        run: chmod +x ./android/gradlew || true
+      - name: Ensure Gradle Wrapper Exists
+        run: |
+          cd android
+          if [ ! -f "gradlew" ]; then
+            echo "Gradle wrapper missing, generating with gradle..."
+            gradle wrapper --gradle-version 8.6 || true
+          fi
+          chmod +x gradlew || true
 
       - name: Build Release APK
         run: |
           cd android
-          ./gradlew assembleRelease --stacktrace
+          if [ -f "gradlew" ]; then
+            ./gradlew assembleRelease --no-daemon --stacktrace
+          else
+            gradle assembleRelease --no-daemon --stacktrace
+          fi
 
       - name: Build Release AAB (Android App Bundle for Play Store)
         run: |
           cd android
-          ./gradlew bundleRelease --stacktrace
+          if [ -f "gradlew" ]; then
+            ./gradlew bundleRelease --no-daemon --stacktrace
+          else
+            gradle bundleRelease --no-daemon --stacktrace
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-APK
           path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: warn
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-AAB
           path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: warn
 `;
 
   const appGradleCode = `plugins {
@@ -117,10 +135,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug // Or replace with release keystore
+            signingConfig signingConfigs.debug // Uses debug keystore for CI testing, replace with release keystore for store release
         }
     }
 

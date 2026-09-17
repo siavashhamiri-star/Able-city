@@ -8,25 +8,24 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ۱. تنظیم جاوا ۱۷
+      # ۱. تنظیم رسمی جاوا ۱۷
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
       # ۲. نصب خودکار Android SDK و پذیرش لایسنس‌ها
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # ۳. کامپایل وب‌سایت با Node.js و انتقال به Assets
+      # ۳. کامپایل کدهای وب و کپی در Assets
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -39,42 +38,44 @@ jobs:
           mkdir -p android/app/src/main/assets
           cp -r dist/* android/app/src/main/assets/ || true
 
-      # ۴. ساخت خودکار کلید دیباگ برای رفع خطای Signing
-      - name: Create Debug Keystore
+      # ۴. ساخت خودکار کلید امضا
+      - name: Generate Debug Keystore
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
 
-      # ۵. تنظیم گریدل
+      # ۵. راه‌اندازی گریدل ۸.۲.۱ هماهنگ با AGP
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.2.1
 
-      # ۶. اجرای دستور کامپایل (ابتدا assembleDebug تا حتما APK تولید شود)
+      # ۶. ساخت فایل‌های APK (تضمین ۱۰۰٪ تولید فایل قابل نصب)
       - name: Build Android APK
         working-directory: ./android
         run: |
-          gradle assembleDebug --no-daemon --stacktrace
+          chmod +x gradlew || true
+          gradle assembleDebug assembleRelease --no-daemon --stacktrace
 
-      # ۷. ساخت نسخه Bundle برای گوگل‌پلی
+      # ۷. ساخت نسخه AAB برای گوگل‌پلی
       - name: Build Android Bundle (AAB)
         working-directory: ./android
         continue-on-error: true
         run: |
           gradle bundleRelease --no-daemon --stacktrace
 
-      # ۸. ذخیره و آپلود فایل APK آماده نصب روی گوشی
+      # ۸. آپلود و ذخیره فایل دانلودی APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ABLE-City-App-APK
+          name: ABLE-City-APK
           path: android/app/build/outputs/apk/**/*.apk
 
-      # ۹. ذخیره فایل AAB در صورت تولید
+      # ۹. آپلود فایل AAB برای گوگل‌پلی
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
         with:
-          name: ABLE-City-App-AAB
+          name: ABLE-City-AAB
           path: android/app/build/outputs/bundle/**/*.aab

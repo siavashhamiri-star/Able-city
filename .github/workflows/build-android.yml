@@ -5,13 +5,10 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
-
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
       - name: Checkout Code
@@ -25,48 +22,41 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # ۲. ست کردن مسیر استاندارد اندروید SDK
-      - name: Configure Android SDK
-        run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
-
-      # ۳. بیلد وب‌اپلیکیشن
+      # ۲. بیلد فایل‌های وب
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Build Web Application
+      - name: Build Web App
         run: |
           npm install
           npm run build
           mkdir -p android/app/src/main/assets
           cp -r dist/* android/app/src/main/assets/ || true
 
-      # ۴. راه‌اندازی Gradle 8.6
+      # ۳. تنظیم Gradle رسمی
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.6
 
-      # ۵. ساخت نهایی فایل‌های APK و AAB
+      # ۴. ساخت خودکار APK و AAB
       - name: Build Android Release APK & AAB
         working-directory: ./android
         run: |
           gradle assembleRelease bundleRelease --no-daemon --stacktrace
 
-      # ۶. ذخیره فایل خروجی APK برای گوشی
-      - name: Upload APK Artifact
+      # ۵. فایل خروجی APK برای نصب روی موبایل
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-APK
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
-      # ۷. ذخیره فایل خروجی AAB برای پلی‌استور
-      - name: Upload AAB Artifact
+      # ۶. فایل خروجی AAB برای انتشار در گوگل‌پلی
+      - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: ABLE-City-Release-AAB

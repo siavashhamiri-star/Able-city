@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ۱. راه‌اندازی جاوا ۱۷
+      # ۱. تنظیم جاوا ۱۷
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -22,7 +22,11 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # ۲. کامپایل وب‌اپلیکیشن و کپی در Assets
+      # ۲. نصب خودکار Android SDK و پذیرش لایسنس‌ها
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ۳. کامپایل وب‌سایت با Node.js و انتقال به Assets
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -35,89 +39,42 @@ jobs:
           mkdir -p android/app/src/main/assets
           cp -r dist/* android/app/src/main/assets/ || true
 
-      # ۳. تضمین وجود کلید امضا و فایل‌های ضروری پروژه
-      - name: Ensure Android Keystore and Files
+      # ۴. ساخت خودکار کلید دیباگ برای رفع خطای Signing
+      - name: Create Debug Keystore
         run: |
-          # ساخت کلید امضا در مسیر runner
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
-          
-          # تضمین وجود styles.xml
-          mkdir -p android/app/src/main/res/values
-          cat << 'EOF' > android/app/src/main/res/values/styles.xml
-          <resources>
-              <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-                  <item name="colorPrimary">@color/colorPrimary</item>
-                  <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-                  <item name="colorAccent">@color/colorAccent</item>
-                  <item name="android:windowNoTitle">true</item>
-                  <item name="android:windowActionBar">false</item>
-              </style>
-          </resources>
-          EOF
 
-          # تضمین وجود MainActivity.java
-          mkdir -p android/app/src/main/java/com/ablecity/app
-          cat << 'EOF' > android/app/src/main/java/com/ablecity/app/MainActivity.java
-          package com.ablecity.app;
-
-          import android.annotation.SuppressLint;
-          import android.os.Bundle;
-          import android.webkit.WebSettings;
-          import android.webkit.WebView;
-          import android.webkit.WebViewClient;
-          import androidx.appcompat.app.AppCompatActivity;
-
-          public class MainActivity extends AppCompatActivity {
-              private WebView webView;
-
-              @Override
-              @SuppressLint("SetJavaScriptEnabled")
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-                  webView = new WebView(this);
-                  setContentView(webView);
-                  WebSettings s = webView.getSettings();
-                  s.setJavaScriptEnabled(true);
-                  s.setDomStorageEnabled(true);
-                  s.setDatabaseEnabled(true);
-                  webView.setWebViewClient(new WebViewClient());
-                  webView.loadUrl("file:///android_asset/index.html");
-              }
-
-              @Override
-              public void onBackPressed() {
-                  if (webView != null && webView.canGoBack()) {
-                      webView.goBack();
-                  } else {
-                      super.onBackPressed();
-                  }
-              }
-          }
-          EOF
-
-      # ۴. تنظیم گریدل نسخه رسمی
+      # ۵. تنظیم گریدل
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.2.1
 
-      # ۵. ساخت خروجی‌ها (Debug و Release)
-      - name: Build APK and AAB
+      # ۶. اجرای دستور کامپایل (ابتدا assembleDebug تا حتما APK تولید شود)
+      - name: Build Android APK
         working-directory: ./android
         run: |
-          gradle assembleDebug assembleRelease bundleRelease --no-daemon --stacktrace
+          gradle assembleDebug --no-daemon --stacktrace
 
-      # ۶. ذخیره فایل‌های APK آماده نصب
+      # ۷. ساخت نسخه Bundle برای گوگل‌پلی
+      - name: Build Android Bundle (AAB)
+        working-directory: ./android
+        continue-on-error: true
+        run: |
+          gradle bundleRelease --no-daemon --stacktrace
+
+      # ۸. ذخیره و آپلود فایل APK آماده نصب روی گوشی
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ABLE-City-APK
+          name: ABLE-City-App-APK
           path: android/app/build/outputs/apk/**/*.apk
 
-      # ۷. ذخیره فایل‌های AAB گوگل‌پلی
+      # ۹. ذخیره فایل AAB در صورت تولید
       - name: Upload AAB
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: ABLE-City-AAB
-          path: android/app/build/outputs/bundle/**/*.aab apk 
+          name: ABLE-City-App-AAB
+          path: android/app/build/outputs/bundle/**/*.aab

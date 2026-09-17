@@ -12,11 +12,20 @@ android {
         versionName "1.0.0"
     }
 
+    signingConfigs {
+        debug {
+            // Android default debug keystore is auto-handled
+        }
+        release {
+            initWith(debug)
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
         debug {
             signingConfig signingConfigs.debug
